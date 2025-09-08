@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة الثعبان Snake Game</title>
+    <title>لعبة الثعبان</title>
     <style>
         * { box-sizing: border-box; }
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Tajawal', Arial, sans-serif;
             background: #f0f0f0;
             margin: 0;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            direction: rtl;
         }
         .game-container {
             background: #fff;
@@ -23,11 +24,13 @@
             text-align: center;
             position: relative;
             min-width: 320px;
+            width: 400px;
+            max-width: 98vw;
         }
         .back-btn {
             position: absolute;
             top: 10px;
-            right: 10px;
+            left: 10px;
             background: linear-gradient(135deg, #3b82f6, #6ee7b7);
             color: #fff;
             border: none;
@@ -94,6 +97,11 @@
         button:hover, .mobile-btn:active {
             background: #45a049;
         }
+        .pause-btn {
+            background: #f59e42;
+            margin-right: 8px;
+            margin-left: 8px;
+        }
         .game-over-message {
             display: none;
             margin-top: 20px;
@@ -127,12 +135,15 @@
                 background: linear-gradient(135deg, #6ee7b7, #3b82f6);
                 box-shadow: 0 4px 16px #0002;
                 border: none;
+                color: #fff;
+                margin: 2px;
             }
         }
     </style>
 </head>
 <body>
     <div class="game-container">
+        <button class="back-btn" onclick="window.location.href='index.html'" title="رجوع">⟵</button>
         <h1>لعبة الثعبان</h1>
         <div class="score-container">
             <p>النقاط: <span id="score">0</span></p>
@@ -140,7 +151,7 @@
         </div>
         <div class="instructions">
             <p>استخدم الأسهم أو أزرار الهاتف للتحكم</p>
-            <p>اضغط P للإيقاف المؤقت/استكمال</p>
+            <p>اضغط زر الإيقاف أو P للإيقاف المؤقت/استكمال</p>
         </div>
         <canvas id="game-board" width="400" height="400"></canvas>
         <div id="mobile-controls">
@@ -154,8 +165,11 @@
             </div>
         </div>
         <div class="controls">
-            <button id="start-btn">بدء اللعبة</button>
-            <button id="restart-btn">إعادة</button>
+            <div>
+                <button id="start-btn">بدء اللعبة</button>
+                <button id="restart-btn">إعادة</button>
+                <button id="pause-btn" class="pause-btn">إيقاف</button>
+            </div>
             <div class="difficulty-selector">
                 <label for="difficulty">الصعوبة:</label>
                 <select id="difficulty">
@@ -212,6 +226,7 @@
             document.getElementById('high-score').textContent = highScore;
             document.getElementById('start-btn').addEventListener('click', startGame);
             document.getElementById('restart-btn').addEventListener('click', restartGame);
+            document.getElementById('pause-btn').addEventListener('click', togglePause);
             document.addEventListener('keydown', changeDirection);
 
             // Mobile controls
@@ -225,7 +240,7 @@
             difficultySelector.addEventListener('change', function() {
                 currentDifficulty = this.value;
                 gameSpeed = difficultyLevels[currentDifficulty];
-                if (gameRunning) {
+                if (gameRunning && !gamePaused) {
                     clearInterval(gameInterval);
                     gameInterval = setInterval(gameLoop, gameSpeed);
                 }
@@ -270,6 +285,7 @@
         function startGame() {
             if (!gameRunning) {
                 gameRunning = true;
+                gamePaused = false;
                 gameSpeed = difficultyLevels[currentDifficulty];
                 gameInterval = setInterval(gameLoop, gameSpeed);
             }
@@ -278,6 +294,7 @@
         function restartGame() {
             clearInterval(gameInterval);
             gameRunning = false;
+            gamePaused = false;
             resetGame();
             drawGame();
         }
@@ -301,7 +318,6 @@
                 case 'right': head.x += gridSize; break;
             }
             // حدود ديناميكية: إذا خرج من جهة يرجع من الجهة المقابلة
-            const cells = Math.floor(canvasSize / gridSize);
             head.x = (head.x + canvasSize) % canvasSize;
             head.y = (head.y + canvasSize) % canvasSize;
 
@@ -340,8 +356,10 @@
         function togglePause() {
             if (!gameRunning) return;
             gamePaused = !gamePaused;
+            const pauseBtn = document.getElementById('pause-btn');
             if (gamePaused) {
                 clearInterval(gameInterval);
+                pauseBtn.textContent = 'استكمال';
                 ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.fillStyle = 'white';
@@ -349,8 +367,9 @@
                 ctx.textAlign = 'center';
                 ctx.fillText('متوقف', canvas.width / 2, canvas.height / 2);
                 ctx.font = '16px Arial';
-                ctx.fillText('اضغط P للاستكمال', canvas.width / 2, canvas.height / 2 + 30);
+                ctx.fillText('اضغط زر الاستكمال أو P', canvas.width / 2, canvas.height / 2 + 30);
             } else {
+                pauseBtn.textContent = 'إيقاف';
                 gameInterval = setInterval(gameLoop, gameSpeed);
             }
         }
