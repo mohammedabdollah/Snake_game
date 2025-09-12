@@ -1,445 +1,419 @@
-<!DOCTYPE html>
-<html lang="ar">
+<!doctype html>
+<html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة الثعبان</title>
-    <style>
-        * { box-sizing: border-box; }
-        body {
-            font-family: 'Tajawal', Arial, sans-serif;
-            background: #f0f0f0;
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            direction: rtl;
-        }
-        .game-container {
-            background: #fff;
-            padding: 20px 16px 32px 16px;
-            border-radius: 12px;
-            box-shadow: 0 0 16px #0002;
-            text-align: center;
-            position: relative;
-            min-width: 320px;
-            width: 400px;
-            max-width: 98vw;
-        }
-        .back-btn {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: linear-gradient(135deg, #3b82f6, #6ee7b7);
-            color: #fff;
-            border: none;
-            border-radius: 50%;
-            width: 38px;
-            height: 38px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            box-shadow: 0 2px 8px #0001;
-            z-index: 2;
-        }
-        h1 { color: #333; margin-bottom: 18px; }
-        .score-container {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 10px;
-        }
-        .instructions {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 12px;
-            background: #f8f8f8;
-            padding: 8px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-        }
-        #game-board {
-            background: #222;
-            border: 2px solid #000;
-            display: block;
-            margin: 0 auto;
-            touch-action: none;
-        }
-        .controls {
-            margin-top: 18px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-        .difficulty-selector {
-            margin-top: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .difficulty-selector select {
-            padding: 5px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-            background: white;
-            cursor: pointer;
-        }
-        button, .mobile-btn {
-            padding: 8px 16px;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background 0.3s;
-        }
-        button:hover, .mobile-btn:active {
-            background: #45a049;
-        }
-        .pause-btn {
-            background: #f59e42;
-            margin-right: 8px;
-            margin-left: 8px;
-        }
-        .game-over-message {
-            display: none;
-            margin-top: 20px;
-            color: #ff0000;
-        }
-        .game-over-message.active { display: block; }
-        /* أزرار الهاتف */
-        #mobile-controls {
-            display: none;
-        }
-        @media (max-width: 600px) {
-            .game-container { min-width: 0; width: 98vw; }
-            #game-board { width: 96vw !important; height: 96vw !important; max-width: 400px; max-height: 400px; }
-            #mobile-controls {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                margin-top: 18px;
-                gap: 6px;
-                user-select: none;
-            }
-            .mobile-row {
-                display: flex;
-                gap: 12px;
-            }
-            .mobile-btn {
-                width: 56px;
-                height: 56px;
-                font-size: 2rem;
-                border-radius: 50%;
-                background: linear-gradient(135deg, #6ee7b7, #3b82f6);
-                box-shadow: 0 4px 16px #0002;
-                border: none;
-                color: #fff;
-                margin: 2px;
-            }
-        }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Snake — 10 Levels (Mobile)</title>
+<meta name="description" content="لعبة الثعبان للموبايل: 10 مستويات مع متاهات تدريجية، سرعات سهل/متوسط/صعب، التفاف الحواف، أزرار لمس، سوايب، إيقاف/متابعة وملء الشاشة.">
+<style>
+:root{--bg:#0b1b2b;--panel:#0f2438;--text:#eef6ff;--muted:#9fb1c7;--accent:#22c55e;--danger:#ef4444}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,Segoe UI,Roboto,Arial;-webkit-tap-highlight-color:transparent;overflow:hidden}
+.hidden{display:none!important}
+
+/* Start + Levels */
+.start{max-width:900px;margin:0 auto;padding:18px}
+.hero{background:linear-gradient(130deg,#0b1b2b,#102a42 60%,#0b1b2b);border-radius:20px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.hero h1{margin:.2rem 0 .6rem;font-size:clamp(22px,4vw,34px)}
+.hero p{color:var(--muted);line-height:1.7}
+.levels{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:12px}
+.levels button{background:#12273d;border:1px solid #24415e;border-radius:14px;color:#e7f1ff;padding:12px;cursor:pointer}
+.levels button .tag{display:block;color:#9fb1c7;margin-top:6px}
+.levels .lock{opacity:.55;position:relative}
+.levels .lock::after{content:"🔒";position:absolute;right:10px;top:8px}
+
+/* HUD */
+.hud{position:fixed;top:env(safe-area-inset-top);left:0;right:0;display:flex;gap:8px;justify-content:center;align-items:center;padding:8px;background:linear-gradient(180deg,#0b1b2b,#0b1b2bcc);backdrop-filter:blur(6px);z-index:10}
+.badge{background:#12273d;border:1px solid #24415e;border-radius:999px;padding:6px 10px}
+.btn{background:#102538;border:1px solid #1c2b3f;color:#fff;padding:8px 12px;border-radius:12px;cursor:pointer}
+.btn-primary{background:linear-gradient(180deg,#2dd4bf,#10b981);border:0;color:#06241a}
+.btn-small{font-size:14px}
+.board{position:fixed;left:0;right:0;top:48px;bottom:0;display:flex;align-items:center;justify-content:center}
+canvas{display:block;border:2px solid #0c2236;border-radius:16px;background:#0f331a;touch-action:none}
+
+/* Touch controls */
+.touchpad{position:fixed;left:0;right:0;bottom:env(safe-area-inset-bottom);display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 16px;background:linear-gradient(180deg,transparent,rgba(0,0,0,.35));z-index:12}
+.touchpad button{width:88px;height:56px;border-radius:14px;border:1px solid #1c2b3f;background:#102538;color:#fff;font-size:22px;font-weight:800}
+.touchpad .lr{display:flex;gap:10px}
+@media (hover:hover) and (pointer:fine){.touchpad{display:none}}
+
+/* Overlays */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:20}
+.card{background:#0f2438;border:1px solid #173250;border-radius:16px;padding:16px;min-width:260px;text-align:center}
+.card h2{margin:.3rem 0 .6rem}
+.row{display:flex;gap:10px;justify-content:center}
+.hint{color:#b7c6d9;font-size:.92rem}
+</style>
 </head>
 <body>
-    <div class="game-container">
-        <h1>لعبة الثعبان</h1>
-        <div class="score-container">
-            <p>النقاط: <span id="score">0</span></p>
-            <p>الأعلى: <span id="high-score">0</span></p>
-        </div>
-        <div class="instructions">
-            <p>استخدم الأسهم أو أزرار الهاتف للتحكم</p>
-            <p>اضغط زر الإيقاف أو P للإيقاف المؤقت/استكمال</p>
-        </div>
-        <canvas id="game-board" width="400" height="400"></canvas>
-        <div id="mobile-controls">
-            <div class="mobile-row">
-                <button class="mobile-btn" id="up-btn">↑</button>
-            </div>
-            <div class="mobile-row">
-                <button class="mobile-btn" id="left-btn">←</button>
-                <button class="mobile-btn" id="down-btn">↓</button>
-                <button class="mobile-btn" id="right-btn">→</button>
-            </div>
-        </div>
-        <div class="controls">
-            <div>
-                <button id="start-btn">بدء اللعبة</button>
-                <button id="restart-btn">إعادة</button>
-                <button id="pause-btn" class="pause-btn">إيقاف</button>
-            </div>
-            <div class="difficulty-selector">
-                <label for="difficulty">الصعوبة:</label>
-                <select id="difficulty">
-                    <option value="easy">سهل</option>
-                    <option value="medium" selected>متوسط</option>
-                    <option value="hard">صعب</option>
-                </select>
-            </div>
-        </div>
-        <div class="game-over-message" id="game-over">
-            <h2>انتهت اللعبة!</h2>
-            <p>اضغط إعادة للعب مرة أخرى</p>
-        </div>
+
+<!-- START / LEVELS -->
+<section id="screenStart" class="start">
+  <div class="hero">
+    <h1>Snake — نسخة موبايل (10 مستويات)</h1>
+    <p>المستويات مقسّمة: <b>سهل</b> 1–3، <b>متوسط</b> 4–7، <b>صعب</b> 8–10. الهدف: جمع عدد تفّاحات لكل مستوى. الثعبان يلفّ من الحواف (يدخل من الجهة الأخرى).</p>
+    <div id="levels" class="levels"></div>
+    <p class="hint">نصيحة: استخدم الأسهم أو السوايب أو أزرار اللمس. ⏸ لإيقاف/متابعة، ⛶ لملء الشاشة.</p>
+  </div>
+</section>
+
+<!-- GAME HUD -->
+<header id="hud" class="hud hidden">
+  <span id="labelLevel" class="badge">Lv 1 — سهل</span>
+  <span id="labelGoal" class="badge">هدف: 6</span>
+  <span id="labelScore" class="badge">0</span>
+  <span id="labelBest"  class="badge">أفضل 0</span>
+  <button id="pauseBtn" class="btn btn-small" title="إيقاف/متابعة">⏸</button>
+  <button id="fsBtn" class="btn btn-small" title="ملء الشاشة">⛶</button>
+  <button id="exitBtn" class="btn btn-small" title="خروج">✕</button>
+</header>
+
+<!-- GAME BOARD -->
+<main id="board" class="board hidden">
+  <canvas id="canvas" aria-label="لوحة اللعبة" role="img"></canvas>
+  <div class="touchpad" aria-label="تحكم لمس">
+    <button id="btnUp">▲</button>
+    <div class="lr">
+      <button id="btnLeft">◀</button>
+      <button id="btnRight">▶</button>
     </div>
-    <script>
-        // Game variables
-        let canvas, ctx;
-        let snake = [];
-        let food = {};
-        let direction = 'right';
-        let newDirection = 'right';
-        let gameSpeed = 100; // milliseconds
-        let gameInterval;
-        let score = 0;
-        let highScore = localStorage.getItem('snakeHighScore') || 0;
-        let gameRunning = false;
-        let gamePaused = false;
-        let gridSize = 20; // Size of grid cells in pixels
-        let canvasSize = 400; // Canvas size in pixels
-        let difficultyLevels = {
-            easy: 120,
-            medium: 100,
-            hard: 70
-        };
-        let currentDifficulty = 'medium';
+    <button id="btnDown">▼</button>
+  </div>
+</main>
 
-        // Responsive canvas for mobile
-        function updateCanvasSize() {
-            if (window.innerWidth < 600) {
-                let size = Math.min(window.innerWidth * 0.96, 400);
-                canvas.width = size;
-                canvas.height = size;
-                canvasSize = size;
-            } else {
-                canvas.width = 400;
-                canvas.height = 400;
-                canvasSize = 400;
-            }
-        }
+<!-- RESULT -->
+<section id="overlay" class="overlay hidden" aria-modal="true" role="dialog">
+  <div class="card">
+    <h2 id="ovTitle">انتهت اللعبة</h2>
+    <p>نتيجتك: <b id="finalScore">0</b></p>
+    <div class="row">
+      <button id="retryBtn" class="btn btn-primary">إعادة</button>
+      <button id="levelsBtn" class="btn">المستويات</button>
+    </div>
+  </div>
+</section>
 
-        window.onload = function() {
-            canvas = document.getElementById('game-board');
-            ctx = canvas.getContext('2d');
-            document.getElementById('high-score').textContent = highScore;
-            document.getElementById('start-btn').addEventListener('click', startGame);
-            document.getElementById('restart-btn').addEventListener('click', restartGame);
-            document.getElementById('pause-btn').addEventListener('click', togglePause);
-            document.addEventListener('keydown', changeDirection);
+<script>
+/* ===================== BASIC DOM ===================== */
+const el = id => document.getElementById(id);
+const screenStart = el('screenStart');
+const levelsWrap  = el('levels');
+const hud         = el('hud');
+const board       = el('board');
+const overlay     = el('overlay');
+const labelLevel  = el('labelLevel');
+const labelGoal   = el('labelGoal');
+const labelScore  = el('labelScore');
+const labelBest   = el('labelBest');
+const pauseBtn    = el('pauseBtn');
+const fsBtn       = el('fsBtn');
+const exitBtn     = el('exitBtn');
+const retryBtn    = el('retryBtn');
+const levelsBtn   = el('levelsBtn');
+const ovTitle     = el('ovTitle');
+const finalScore  = el('finalScore');
+const btnUp=el('btnUp'), btnDown=el('btnDown'), btnLeft=el('btnLeft'), btnRight=el('btnRight');
 
-            // Mobile controls
-            document.getElementById('up-btn').addEventListener('touchstart', e => { e.preventDefault(); mobileMove('up'); });
-            document.getElementById('down-btn').addEventListener('touchstart', e => { e.preventDefault(); mobileMove('down'); });
-            document.getElementById('left-btn').addEventListener('touchstart', e => { e.preventDefault(); mobileMove('left'); });
-            document.getElementById('right-btn').addEventListener('touchstart', e => { e.preventDefault(); mobileMove('right'); });
+const cvs = el('canvas'), ctx = cvs.getContext('2d');
 
-            // Difficulty selector
-            const difficultySelector = document.getElementById('difficulty');
-            difficultySelector.addEventListener('change', function() {
-                currentDifficulty = this.value;
-                gameSpeed = difficultyLevels[currentDifficulty];
-                if (gameRunning && !gamePaused) {
-                    clearInterval(gameInterval);
-                    gameInterval = setInterval(gameLoop, gameSpeed);
-                }
-            });
+/* ===================== STORE ===================== */
+const STORE_KEY='snake10:v1';
+const store = JSON.parse(localStorage.getItem(STORE_KEY) || '{"best":0,"unlocked":1}');
+function saveStore(){ localStorage.setItem(STORE_KEY, JSON.stringify(store)); }
 
-            // Responsive canvas
-            updateCanvasSize();
-            window.addEventListener('resize', () => {
-                updateCanvasSize();
-                drawGame();
-            });
+/* ===================== LEVELS CONFIG ===================== */
+/* stepMs: السرعة (أصغر = أسرع) | goal: عدد التفاحات لإكمال المستوى */
+const LEVELS = [
+  {name:'Lv1',  tag:'سهل',    stepMs:150, goal:6,  maze:0},
+  {name:'Lv2',  tag:'سهل',    stepMs:140, goal:7,  maze:1},
+  {name:'Lv3',  tag:'سهل',    stepMs:135, goal:8,  maze:2},
+  {name:'Lv4',  tag:'متوسط',  stepMs:125, goal:9,  maze:3},
+  {name:'Lv5',  tag:'متوسط',  stepMs:120, goal:10, maze:4},
+  {name:'Lv6',  tag:'متوسط',  stepMs:115, goal:11, maze:5},
+  {name:'Lv7',  tag:'متوسط',  stepMs:110, goal:12, maze:6},
+  {name:'Lv8',  tag:'صعب',    stepMs:100, goal:13, maze:7},
+  {name:'Lv9',  tag:'صعب',    stepMs: 90, goal:14, maze:8},
+  {name:'Lv10', tag:'صعب',    stepMs: 80, goal:16, maze:9}
+];
 
-            resetGame();
-            drawGame();
-        };
+/* ===================== GRID & RESIZE ===================== */
+const COLS=24, ROWS=32; // منطق ثابت، الرسم يتحجّم تلقائيًا
+let SCALE=20;
+function resize(){
+  const rect = board.getBoundingClientRect();
+  const availW = Math.floor(window.innerWidth);
+  const availH = Math.floor(window.innerHeight - rect.top);
+  SCALE = Math.max(12, Math.floor(Math.min(availW/COLS, availH/ROWS)));
+  cvs.width = COLS * SCALE; cvs.height = ROWS * SCALE;
+}
+window.addEventListener('resize', resize);
 
-        function mobileMove(dir) {
-            if (!gameRunning || gamePaused) return;
-            if (dir === 'up' && direction !== 'down') newDirection = 'up';
-            else if (dir === 'down' && direction !== 'up') newDirection = 'down';
-            else if (dir === 'left' && direction !== 'right') newDirection = 'left';
-            else if (dir === 'right' && direction !== 'left') newDirection = 'right';
-        }
+/* ===================== GAME STATE ===================== */
+let levelIdx=0, stepMs=140, goal=6;
+let snake=[], dir={x:1,y:0}, lastDir={x:1,y:0}, apple={x:0,y:0};
+let score=0, best=store.best||0, alive=true, paused=false;
+let raf=0, last=0, acc=0;
+let walls = new Set(); // "x,y" لكل جدار
 
-        function resetGame() {
-            // Initialize snake at the center
-            const cells = Math.floor(canvasSize / gridSize);
-            const centerPos = Math.floor(cells / 2) * gridSize;
-            snake = [
-                {x: centerPos, y: centerPos},
-                {x: centerPos - gridSize, y: centerPos},
-                {x: centerPos - gridSize * 2, y: centerPos}
-            ];
-            direction = 'right';
-            newDirection = 'right';
-            score = 0;
-            document.getElementById('score').textContent = score;
-            generateFood();
-            document.getElementById('game-over').classList.remove('active');
-        }
+/* ===================== MAZES (متاهات تدريجية) ===================== */
+function key(x,y){ return x+','+y; }
+function addRect(x,y,w,h){
+  for(let j=0;j<h;j++)for(let i=0;i<w;i++){
+    // لا نضع جدارًا على الحواف مباشرة حتى يبقى الالتفاف مفيدًا
+    if(x+i<=0 || x+i>=COLS-1 || y+j<=0 || y+j>=ROWS-1) continue;
+    walls.add(key(x+i,y+j));
+  }
+}
+function buildMaze(type){
+  walls.clear();
+  switch(type){
+    case 0: /* no walls */ break;
+    case 1: // مستطيل صغير في المنتصف
+      addRect(Math.floor(COLS/2)-2, Math.floor(ROWS/2)-2, 4, 4);
+      break;
+    case 2: // عمودان رأسيان
+      addRect(Math.floor(COLS/3), 4, 2, ROWS-8);
+      addRect(Math.floor(COLS*2/3), 4, 2, ROWS-8);
+      break;
+    case 3: // قُضبان أفقية متقطعة
+      for(let y=6;y<ROWS-6;y+=6){ addRect(4, y, COLS-8, 2); }
+      break;
+    case 4: // صليب + مربعات زوايا صغيرة
+      addRect(Math.floor(COLS/2)-1, 4, 2, ROWS-8);
+      addRect(4, Math.floor(ROWS/2)-1, COLS-8, 2);
+      addRect(5,5,3,3); addRect(COLS-8,5,3,3); addRect(5,ROWS-8,3,3); addRect(COLS-8,ROWS-8,3,3);
+      break;
+    case 5: // أعمدة (Pillars) على نمط شبكة
+      for(let y=6;y<ROWS-6;y+=6) for(let x=5;x<COLS-5;x+=6) addRect(x,y,2,2);
+      break;
+    case 6: // ممرات زجزاج
+      for(let y=4;y<ROWS-4;y+=4){
+        const len=COLS-10, start=(y%8===0)?5:COLS-len-5;
+        addRect(start,y, len, 1);
+      }
+      break;
+    case 7: // حلزوني بسيط
+      let x1=4,y1=4,x2=COLS-5,y2=ROWS-5;
+      while(x1<x2 && y1<y2){
+        addRect(x1,y1, x2-x1, 1);
+        addRect(x1,y2, x2-x1, 1);
+        addRect(x1,y1, 1, y2-y1);
+        addRect(x2,y1, 1, y2-y1);
+        x1+=3;y1+=3;x2-=3;y2-=3;
+      }
+      break;
+    case 8: // ممرات رأسية مع فتحات
+      for(let x=5;x<COLS-5;x+=4){
+        addRect(x, 4, 1, ROWS-8);
+        // فتحات
+        for(let k=6;k<ROWS-6;k+=8) walls.delete(key(x,k));
+      }
+      break;
+    case 9: // متاهة مختلطة (شبكة + صليب)
+      addRect(Math.floor(COLS/2)-1, 3, 2, ROWS-6);
+      addRect(3, Math.floor(ROWS/2)-1, COLS-6, 2);
+      for(let y=6;y<ROWS-6;y+=5) for(let x=6;x<COLS-6;x+=7) addRect(x,y,1,1);
+      break;
+  }
+}
 
-        function startGame() {
-            if (!gameRunning) {
-                gameRunning = true;
-                gamePaused = false;
-                gameSpeed = difficultyLevels[currentDifficulty];
-                gameInterval = setInterval(gameLoop, gameSpeed);
-            }
-        }
+/* ===================== HELPERS ===================== */
+function randInt(n){ return Math.floor(Math.random()*n); }
+function placeApple(){
+  while(true){
+    const x=randInt(COLS), y=randInt(ROWS);
+    if(walls.has(key(x,y))) continue;
+    if(snake.some(s=>s.x===x && s.y===y)) continue;
+    apple = {x,y}; return;
+  }
+}
+function setDir(nx,ny){
+  if(nx===-lastDir.x && ny===-lastDir.y) return; // منع الرجوع 180°
+  if(nx && ny) ny=0; // لا اتجاه قطري
+  dir={x:nx,y:ny};
+}
 
-        function restartGame() {
-            clearInterval(gameInterval);
-            gameRunning = false;
-            gamePaused = false;
-            resetGame();
-            drawGame();
-        }
+/* ===================== START/RESET LEVEL ===================== */
+function resetLevel(i){
+  levelIdx=i;
+  const L = LEVELS[i];
+  stepMs=L.stepMs; goal=L.goal;
+  buildMaze(L.maze);
+  // ثعبان قصير ببداية آمنة
+  snake=[{x:3,y:Math.floor(ROWS/2)},{x:2,y:Math.floor(ROWS/2)},{x:1,y:Math.floor(ROWS/2)}];
+  dir={x:1,y:0}; lastDir={x:1,y:0};
+  score=0; alive=true; paused=false; acc=0; last=0;
+  placeApple();
+  labelLevel.textContent = `Lv ${i+1} — ${L.tag}`;
+  labelGoal.textContent  = `هدف: ${goal}`;
+  labelScore.textContent = `0`;
+  labelBest.textContent  = `أفضل ${best}`;
+}
 
-        function gameLoop() {
-            updateSnake();
-            if (checkCollision()) {
-                endGame();
-                return;
-            }
-            drawGame();
-        }
+/* ===================== LOOP (Fixed timestep) ===================== */
+const MIN_STEP=70; // سقف السرعة
+function step(){
+  if(!alive) return;
+  // رأس جديد + التفاف الحواف
+  let nx = (snake[0].x + dir.x + COLS) % COLS;
+  let ny = (snake[0].y + dir.y + ROWS) % ROWS;
+  // اصطدام بالجدار الداخلي
+  if(walls.has(key(nx,ny))) return die();
+  // اصطدام بالذات
+  if(snake.some(s=>s.x===nx && s.y===ny)) return die();
 
-        function updateSnake() {
-            direction = newDirection;
-            const head = {x: snake[0].x, y: snake[0].y};
-            switch(direction) {
-                case 'up': head.y -= gridSize; break;
-                case 'down': head.y += gridSize; break;
-                case 'left': head.x -= gridSize; break;
-                case 'right': head.x += gridSize; break;
-            }
-            // حدود ديناميكية: إذا خرج من جهة يرجع من الجهة المقابلة
-            head.x = (head.x + canvasSize) % canvasSize;
-            head.y = (head.y + canvasSize) % canvasSize;
+  const head={x:nx,y:ny};
+  const ate = (nx===apple.x && ny===apple.y);
+  snake.unshift(head);
+  if(ate){
+    score++; labelScore.textContent=String(score);
+    placeApple();
+    stepMs = Math.max(MIN_STEP, stepMs - 2); // تسريع بسيط مع التقدم
+    if(score>=goal) return win();
+  }else{
+    snake.pop();
+  }
+  lastDir=dir;
+}
+function loop(t){
+  const dt = t - (last||t); last=t;
+  if(!paused && alive){
+    acc += dt;
+    while(acc >= stepMs){ step(); acc -= stepMs; }
+  }
+  render();
+  raf = requestAnimationFrame(loop);
+}
 
-            // Check self collision
-            for (let i = 0; i < snake.length; i++) {
-                if (head.x === snake[i].x && head.y === snake[i].y) {
-                    endGame();
-                    return;
-                }
-            }
-            snake.unshift(head);
+/* ===================== RENDER ===================== */
+function roundRect(x,y,w,h,r){
+  ctx.beginPath(); ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);
+  ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); ctx.fill();
+}
+function render(){
+  // خلفية مكسّرة خفيفة
+  ctx.fillStyle='#0d3a1d'; ctx.fillRect(0,0,cvs.width,cvs.height);
+  ctx.fillStyle='rgba(255,255,255,0.03)';
+  for(let y=0;y<ROWS;y++) for(let x=0;x<COLS;x++) if(((x+y)&1)===0)
+    ctx.fillRect(x*SCALE,y*SCALE,SCALE,SCALE);
 
-            // Food eaten?
-            if (head.x === food.x && head.y === food.y) {
-                generateFood();
-                updateScore();
-            } else {
-                snake.pop();
-            }
-        }
+  // جدران
+  ctx.fillStyle='#173b5b';
+  walls.forEach(k=>{
+    const [x,y]=k.split(',').map(Number);
+    roundRect(x*SCALE+2,y*SCALE+2,SCALE-4,SCALE-4,6);
+  });
 
-        function changeDirection(event) {
-            const key = event.key;
-            if (key === 'p' || key === 'P' || key === 'Escape') {
-                togglePause();
-                return;
-            }
-            if (gameRunning && !gamePaused) {
-                if (key === 'ArrowUp' && direction !== 'down') newDirection = 'up';
-                else if (key === 'ArrowDown' && direction !== 'up') newDirection = 'down';
-                else if (key === 'ArrowLeft' && direction !== 'right') newDirection = 'left';
-                else if (key === 'ArrowRight' && direction !== 'left') newDirection = 'right';
-            }
-        }
+  // تفاحة
+  ctx.fillStyle='#ffd54a';
+  ctx.beginPath();
+  ctx.arc(apple.x*SCALE+SCALE/2, apple.y*SCALE+SCALE/2, SCALE*0.35, 0, Math.PI*2);
+  ctx.fill();
 
-        function togglePause() {
-            if (!gameRunning) return;
-            gamePaused = !gamePaused;
-            const pauseBtn = document.getElementById('pause-btn');
-            if (gamePaused) {
-                clearInterval(gameInterval);
-                pauseBtn.textContent = 'استكمال';
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = 'white';
-                ctx.font = '30px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('متوقف', canvas.width / 2, canvas.height / 2);
-                ctx.font = '16px Arial';
-                ctx.fillText('اضغط زر الاستكمال أو P', canvas.width / 2, canvas.height / 2 + 30);
-            } else {
-                pauseBtn.textContent = 'إيقاف';
-                gameInterval = setInterval(gameLoop, gameSpeed);
-            }
-        }
+  // ثعبان (رأس مميز + جسم)
+  for(let i=snake.length-1;i>=0;i--){
+    const s=snake[i];
+    if(i===0){
+      // رأس
+      const gx=s.x*SCALE, gy=s.y*SCALE;
+      const grad=ctx.createLinearGradient(gx,gy,gx,gy+SCALE);
+      grad.addColorStop(0,'#39ff14'); grad.addColorStop(1,'#0fbf4a');
+      ctx.fillStyle=grad; roundRect(gx+2,gy+2,SCALE-4,SCALE-4,8);
+      // عينين بسيطتين
+      ctx.fillStyle='#0b1b2b';
+      const ex=gx+SCALE/2 + (dir.x*3), ey=gy+SCALE/2 + (dir.y*3);
+      ctx.beginPath(); ctx.arc(ex-4,ey-4,2,0,6.283); ctx.arc(ex+4,ey-4,2,0,6.283); ctx.fill();
+    }else{
+      ctx.fillStyle='#14e38b';
+      roundRect(s.x*SCALE+3, s.y*SCALE+3, SCALE-6, SCALE-6, 6);
+    }
+  }
+}
 
-        function checkCollision() {
-            // No wall collision (ديناميكية)
-            // Check self collision
-            const head = snake[0];
-            for (let i = 1; i < snake.length; i++) {
-                if (head.x === snake[i].x && head.y === snake[i].y) {
-                    return true;
-                }
-            }
-            return false;
-        }
+/* ===================== END STATES ===================== */
+function die(){
+  alive=false;
+  finalScore.textContent=score; ovTitle.textContent='انتهت اللعبة';
+  overlay.classList.remove('hidden');
+  best=Math.max(best, score); store.best=best; saveStore();
+}
+function win(){
+  alive=false;
+  finalScore.textContent=score; ovTitle.textContent='مستوى مكتمل 🎉';
+  overlay.classList.remove('hidden');
+  // فتح المستوى التالي
+  store.unlocked = Math.max(store.unlocked||1, levelIdx+2);
+  store.best = Math.max(store.best||0, score);
+  saveStore();
+}
 
-        function generateFood() {
-            const gridCount = Math.floor(canvasSize / gridSize);
-            let foodX, foodY, validPosition = false;
-            while (!validPosition) {
-                foodX = Math.floor(Math.random() * gridCount) * gridSize;
-                foodY = Math.floor(Math.random() * gridCount) * gridSize;
-                validPosition = true;
-                for (let segment of snake) {
-                    if (segment.x === foodX && segment.y === foodY) {
-                        validPosition = false;
-                        break;
-                    }
-                }
-            }
-            food = {x: foodX, y: foodY};
-        }
+/* ===================== INPUT ===================== */
+window.addEventListener('keydown',e=>{
+  if(e.key==='ArrowUp') setDir(0,-1);
+  else if(e.key==='ArrowDown') setDir(0,1);
+  else if(e.key==='ArrowLeft') setDir(-1,0);
+  else if(e.key==='ArrowRight') setDir(1,0);
+  else if(e.key===' '){ e.preventDefault(); togglePause(); }
+});
+function hold(btn,on){ if(!btn) return; btn.addEventListener('pointerdown',e=>{e.preventDefault(); on();}); }
+hold(btnUp,   ()=>setDir(0,-1));
+hold(btnDown, ()=>setDir(0, 1));
+hold(btnLeft, ()=>setDir(-1,0));
+hold(btnRight,()=>setDir(1, 0));
+// سوايب
+let sx=0, sy=0, swiping=false;
+cvs.addEventListener('pointerdown', e=>{ swiping=true; sx=e.clientX; sy=e.clientY; cvs.setPointerCapture?.(e.pointerId); });
+cvs.addEventListener('pointerup', e=>{
+  if(!swiping) return; swiping=false;
+  const dx=e.clientX-sx, dy=e.clientY-sy;
+  if(Math.abs(dx)>Math.abs(dy)){ if(Math.abs(dx)>18) setDir(dx>0?1:-1,0); }
+  else{ if(Math.abs(dy)>18) setDir(0, dy>0?1:-1); }
+},{passive:true});
 
-        function updateScore() {
-            score++;
-            document.getElementById('score').textContent = score;
-            if (score > highScore) {
-                highScore = score;
-                document.getElementById('high-score').textContent = highScore;
-                localStorage.setItem('snakeHighScore', highScore);
-            }
-        }
+/* ===================== UI FLOW ===================== */
+function togglePause(){ paused=!paused; pauseBtn.textContent = paused?'▶':'⏸'; }
+pauseBtn.addEventListener('click', togglePause);
+fsBtn.addEventListener('click', ()=>{
+  if(!document.fullscreenElement){
+    (document.documentElement.requestFullscreen||document.body.requestFullscreen).call(document.documentElement);
+  } else { document.exitFullscreen?.(); }
+});
+exitBtn.addEventListener('click', backToLevels);
+retryBtn.addEventListener('click', ()=>{ overlay.classList.add('hidden'); resetLevel(levelIdx); });
+levelsBtn.addEventListener('click', backToLevels);
 
-        function endGame() {
-            clearInterval(gameInterval);
-            gameRunning = false;
-            document.getElementById('game-over').classList.add('active');
-        }
-
-        function drawGame() {
-            ctx.fillStyle = '#222';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            // Draw snake
-            ctx.fillStyle = '#4CAF50';
-            for (let segment of snake) {
-                ctx.fillRect(segment.x, segment.y, gridSize, gridSize);
-                ctx.strokeStyle = '#45a049';
-                ctx.strokeRect(segment.x, segment.y, gridSize, gridSize);
-            }
-            // Draw head
-            ctx.fillStyle = '#2E7D32';
-            ctx.fillRect(snake[0].x, snake[0].y, gridSize, gridSize);
-            ctx.strokeStyle = '#1B5E20';
-            ctx.strokeRect(snake[0].x, snake[0].y, gridSize, gridSize);
-            // Draw food
-            ctx.fillStyle = '#FF5722';
-            ctx.beginPath();
-            const radius = gridSize / 2;
-            ctx.arc(food.x + radius, food.y + radius, radius, 0, Math.PI * 2);
-            ctx.fill();
-        }
-    </script>
+function backToLevels(){
+  cancelAnimationFrame(raf);
+  overlay.classList.add('hidden');
+  board.classList.add('hidden'); hud.classList.add('hidden');
+  screenStart.classList.remove('hidden');
+  buildLevels();
+}
+function startLevel(i){
+  screenStart.classList.add('hidden');
+  hud.classList.remove('hidden');
+  board.classList.remove('hidden');
+  resize();
+  resetLevel(i);
+  cancelAnimationFrame(raf); last=0; acc=0;
+  raf=requestAnimationFrame(loop);
+}
+function buildLevels(){
+  levelsWrap.innerHTML='';
+  LEVELS.forEach((L,i)=>{
+    const b=document.createElement('button');
+    const locked = (i+1)>(store.unlocked||1);
+    b.className = 'level '+(locked?'lock':'');
+    b.innerHTML = `<strong>${i+1}</strong> <span class="tag">${L.tag} • هدف ${L.goal}</span>`;
+    b.disabled = locked;
+    b.addEventListener('click', ()=>startLevel(i));
+    levelsWrap.appendChild(b);
+  });
+}
+buildLevels();
+</script>
 </body>
 </html>
